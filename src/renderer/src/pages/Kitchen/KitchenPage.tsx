@@ -43,10 +43,10 @@ function TicketCard({
   const mins = elapsedMinutes(order.created_at)
   const urgentClass =
     mins >= 15
-      ? 'border-red-500 shadow-red-200'
+      ? 'border-red-500 shadow-red-900'
       : mins >= 8
-        ? 'border-orange-400 shadow-orange-200'
-        : 'border-gray-200'
+        ? 'border-orange-400 shadow-orange-900'
+        : 'border-gray-600'
 
   const modifiers = (item: KitchenItem): string[] => {
     if (!item.modifiers_json) return []
@@ -60,12 +60,12 @@ function TicketCard({
   return (
     <div
       className={cn(
-        'ticket-card rounded-xl border-2 bg-muted shadow-md flex flex-col',
+        'ticket-card rounded-xl border-2 bg-gray-800 shadow-md flex flex-col',
         urgentClass
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 border-b bg-gray-50 rounded-t-xl">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-gray-700 bg-gray-700/60 rounded-t-xl">
         <div className="flex items-center gap-2">
           <span className="font-bold text-lg">{order.order_number}</span>
           <Badge
@@ -106,8 +106,8 @@ function TicketCard({
               className={cn(
                 'w-full text-left rounded-lg px-3 py-2 transition-colors',
                 item.status === 'preparing'
-                  ? 'bg-blue-50 border border-blue-200'
-                  : 'hover:bg-gray-50 border border-transparent'
+                  ? 'bg-blue-900/40 border border-blue-500'
+                  : 'hover:bg-gray-700/50 border border-transparent'
               )}
             >
               <div className="flex items-start gap-2">
@@ -123,16 +123,16 @@ function TicketCard({
                     <span className="font-semibold">{item.product_name}</span>
                   </div>
                   {modifiers(item).length > 0 && (
-                    <p className="text-xs text-gray-600 ml-5">{modifiers(item).join(', ')}</p>
+                    <p className="text-xs text-gray-300 ml-5">{modifiers(item).join(', ')}</p>
                   )}
                   {item.notes && (
-                    <p className="text-xs italic text-orange-600 ml-5">* {item.notes}</p>
+                    <p className="text-xs italic text-orange-400 ml-5">* {item.notes}</p>
                   )}
                 </div>
               </div>
             </button>
           ))}
-        {order.notes && <p className="text-xs italic text-gray-500 px-1">Note: {order.notes}</p>}
+        {order.notes && <p className="text-xs italic text-gray-400 px-1">Note: {order.notes}</p>}
       </div>
 
       {/* Bump button */}

@@ -2,6 +2,19 @@ import { useEffect } from 'react'
 import { useSettingsStore } from '../store'
 import type { AppSettings } from '../types'
 
+function applyTheme(theme: string | undefined): void {
+  const t = theme ?? 'system'
+  let isDark: boolean
+  if (t === 'dark') {
+    isDark = true
+  } else if (t === 'light') {
+    isDark = false
+  } else {
+    isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+  }
+  document.documentElement.classList.toggle('dark', isDark)
+}
+
 export function useSettings(): AppSettings | null {
   const { settings, loaded, setSettings } = useSettingsStore()
 
@@ -9,15 +22,24 @@ export function useSettings(): AppSettings | null {
     if (!loaded) {
       window.api.settings.getAll().then((s) => {
         setSettings(s as unknown as AppSettings)
-        // Apply theme
-        if ((s as unknown as AppSettings).theme === 'dark') {
-          document.documentElement.classList.add('dark')
-        } else {
-          document.documentElement.classList.remove('dark')
-        }
+        applyTheme((s as unknown as AppSettings).theme)
       })
     }
   }, [loaded, setSettings])
+
+  // Reactively re-apply theme whenever the stored setting changes
+  useEffect(() => {
+    applyTheme(settings?.theme)
+  }, [settings?.theme])
+
+  // Also respond to system colour-scheme changes when theme === 'system'
+  useEffect(() => {
+    if (settings?.theme !== 'system') return
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const handler = (): void => applyTheme('system')
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [settings?.theme])
 
   return settings
 }

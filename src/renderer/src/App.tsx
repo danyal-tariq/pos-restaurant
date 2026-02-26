@@ -4,6 +4,7 @@ import { Layout } from './components/Layout'
 import { Spinner } from './components/ui/index'
 import { useSessionStore } from './store'
 import { LoginPage as Login } from './pages/Login'
+import { useSettings } from './hooks/useSettings'
 
 const POSPage = lazy(() => import('./pages/POS/POSPage').then((m) => ({ default: m.POSPage })))
 const OrdersPage = lazy(() =>
@@ -64,6 +65,7 @@ function AuthenticatedApp(): JSX.Element {
 
 function App(): React.JSX.Element {
   const isAuthenticated = useSessionStore((s) => s.isAuthenticated)
+  useSettings() // initialise settings & keep theme in sync
 
   return (
     <HashRouter>
