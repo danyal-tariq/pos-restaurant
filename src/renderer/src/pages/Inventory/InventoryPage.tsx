@@ -1,19 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useCurrency } from '../../hooks/useSettings'
-import { formatDateTime } from '../../lib/utils'
 import { Button, Input, Label, Badge, Spinner, EmptyState, Card } from '../../components/ui/index'
-import { Modal, ConfirmDialog, showToast } from '../../components/ui/Modal'
-import { Plus, Pencil, TrendingDown, TrendingUp, AlertTriangle, Package } from 'lucide-react'
+import { Modal } from '../../components/ui/Modal'
+import { showToast } from '../../components/ui/toast'
+import { Plus, Pencil, AlertTriangle, Package } from 'lucide-react'
 import type { InventoryItem } from '../../types'
-
-interface AdjustmentLog {
-  id: number
-  inventory_item_id: number
-  type: string
-  quantity: number
-  reason?: string | null
-  created_at: string
-}
 
 interface AdjustForm {
   open: boolean
@@ -35,7 +26,9 @@ export function InventoryPage(): JSX.Element {
   const [search, setSearch] = useState('')
   const [lowStockOnly, setLowStockOnly] = useState(false)
   const [adjustForm, setAdjustForm] = useState<AdjustForm>({ open: false })
-  const [itemForm, setItemForm] = useState<{ open: boolean; initial?: Partial<InventoryItem> }>({ open: false })
+  const [itemForm, setItemForm] = useState<{ open: boolean; initial?: Partial<InventoryItem> }>({
+    open: false
+  })
   const [adjustQty, setAdjustQty] = useState('')
   const [adjustType, setAdjustType] = useState<'add' | 'remove' | 'set'>('add')
   const [adjustReason, setAdjustReason] = useState('')
@@ -51,7 +44,9 @@ export function InventoryPage(): JSX.Element {
     setLoading(false)
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    load()
+  }, [load])
 
   const filtered = items.filter((i) => {
     const matchSearch = !search || i.name.toLowerCase().includes(search.toLowerCase())
@@ -97,7 +92,8 @@ export function InventoryPage(): JSX.Element {
           <h1 className="text-2xl font-bold">Inventory</h1>
           {valuation && (
             <p className="text-sm text-muted-foreground">
-              {(valuation.items as unknown[]).length} items · Total value: {fmt(valuation.total_value)}
+              {(valuation.items as unknown[]).length} items · Total value:{' '}
+              {fmt(valuation.total_value)}
             </p>
           )}
         </div>
@@ -110,7 +106,9 @@ export function InventoryPage(): JSX.Element {
       {lowStockCount > 0 && (
         <div className="flex items-center gap-2 rounded-xl bg-orange-50 border border-orange-200 px-4 py-3 text-orange-800">
           <AlertTriangle className="h-5 w-5 text-orange-500" />
-          <span className="text-sm font-medium">{lowStockCount} item{lowStockCount !== 1 ? 's' : ''} below minimum stock level</span>
+          <span className="text-sm font-medium">
+            {lowStockCount} item{lowStockCount !== 1 ? 's' : ''} below minimum stock level
+          </span>
         </div>
       )}
 
@@ -123,7 +121,12 @@ export function InventoryPage(): JSX.Element {
           onChange={(e) => setSearch(e.target.value)}
         />
         <label className="flex items-center gap-2 text-sm cursor-pointer">
-          <input type="checkbox" checked={lowStockOnly} onChange={(e) => setLowStockOnly(e.target.checked)} className="h-4 w-4" />
+          <input
+            type="checkbox"
+            checked={lowStockOnly}
+            onChange={(e) => setLowStockOnly(e.target.checked)}
+            className="h-4 w-4"
+          />
           Low stock only
         </label>
       </div>
@@ -131,15 +134,39 @@ export function InventoryPage(): JSX.Element {
       {/* Table */}
       <Card className="flex-1 overflow-auto">
         {loading ? (
-          <div className="flex items-center justify-center h-40"><Spinner className="h-8 w-8" /></div>
+          <div className="flex items-center justify-center h-40">
+            <Spinner className="h-8 w-8" />
+          </div>
         ) : filtered.length === 0 ? (
-          <EmptyState title="No inventory items" description="Add stock items to track" action={<button className="rounded-lg bg-primary px-3 py-1.5 text-sm text-primary-foreground" onClick={() => setItemForm({ open: true })}>Add Item</button>} />
+          <EmptyState
+            title="No inventory items"
+            description="Add stock items to track"
+            action={
+              <button
+                className="rounded-lg bg-primary px-3 py-1.5 text-sm text-primary-foreground"
+                onClick={() => setItemForm({ open: true })}
+              >
+                Add Item
+              </button>
+            }
+          />
         ) : (
           <table className="w-full text-sm">
             <thead className="bg-muted/50 sticky top-0">
               <tr>
-                {['Item', 'Unit', 'Current Stock', 'Min Level', 'Cost/Unit', 'Total Value', 'Status', ''].map((h) => (
-                  <th key={h} className="text-left px-4 py-3 font-semibold text-muted-foreground">{h}</th>
+                {[
+                  'Item',
+                  'Unit',
+                  'Current Stock',
+                  'Min Level',
+                  'Cost/Unit',
+                  'Total Value',
+                  'Status',
+                  ''
+                ].map((h) => (
+                  <th key={h} className="text-left px-4 py-3 font-semibold text-muted-foreground">
+                    {h}
+                  </th>
                 ))}
               </tr>
             </thead>
@@ -151,7 +178,9 @@ export function InventoryPage(): JSX.Element {
                     <td className="px-4 py-3 font-medium">{item.name}</td>
                     <td className="px-4 py-3 text-muted-foreground">{item.unit}</td>
                     <td className="px-4 py-3">
-                      <span className={`font-bold ${isLow ? 'text-destructive' : ''}`}>{item.quantity}</span>
+                      <span className={`font-bold ${isLow ? 'text-destructive' : ''}`}>
+                        {item.quantity}
+                      </span>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">{item.threshold}</td>
                     <td className="px-4 py-3">{fmt(item.cost_per_unit)}</td>
@@ -188,11 +217,18 @@ export function InventoryPage(): JSX.Element {
 
       {/* Adjust modal */}
       {adjustForm.open && adjustForm.item && (
-        <Modal open onClose={() => setAdjustForm({ open: false })} title={`Adjust: ${adjustForm.item.name}`} size="sm">
+        <Modal
+          open
+          onClose={() => setAdjustForm({ open: false })}
+          title={`Adjust: ${adjustForm.item.name}`}
+          size="sm"
+        >
           <div className="p-6 space-y-4">
             <div className="flex items-center gap-2 rounded-xl bg-muted/50 px-4 py-3 text-sm">
               <span className="text-muted-foreground">Current stock:</span>
-              <span className="font-bold text-lg">{adjustForm.item.quantity} {adjustForm.item.unit}</span>
+              <span className="font-bold text-lg">
+                {adjustForm.item.quantity} {adjustForm.item.unit}
+              </span>
             </div>
             <div>
               <Label>Adjustment Type</Label>
@@ -211,15 +247,30 @@ export function InventoryPage(): JSX.Element {
             </div>
             <div>
               <Label>Quantity ({adjustForm.item.unit})</Label>
-              <Input type="number" step="0.01" value={adjustQty} onChange={(e) => setAdjustQty(e.target.value)} placeholder="0" autoFocus />
+              <Input
+                type="number"
+                step="0.01"
+                value={adjustQty}
+                onChange={(e) => setAdjustQty(e.target.value)}
+                placeholder="0"
+                autoFocus
+              />
             </div>
             <div>
               <Label>Reason (optional)</Label>
-              <Input value={adjustReason} onChange={(e) => setAdjustReason(e.target.value)} placeholder="e.g. Received delivery, Waste, etc." />
+              <Input
+                value={adjustReason}
+                onChange={(e) => setAdjustReason(e.target.value)}
+                placeholder="e.g. Received delivery, Waste, etc."
+              />
             </div>
             <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" onClick={() => setAdjustForm({ open: false })}>Cancel</Button>
-              <Button onClick={handleAdjust} disabled={!adjustQty}>Apply Adjustment</Button>
+              <Button variant="outline" onClick={() => setAdjustForm({ open: false })}>
+                Cancel
+              </Button>
+              <Button onClick={handleAdjust} disabled={!adjustQty}>
+                Apply Adjustment
+              </Button>
             </div>
           </div>
         </Modal>
@@ -227,13 +278,21 @@ export function InventoryPage(): JSX.Element {
 
       {/* Item form */}
       {itemForm.open && (
-        <ItemFormModal initial={itemForm.initial} onSave={handleSaveItem} onClose={() => setItemForm({ open: false })} />
+        <ItemFormModal
+          initial={itemForm.initial}
+          onSave={handleSaveItem}
+          onClose={() => setItemForm({ open: false })}
+        />
       )}
     </div>
   )
 }
 
-function ItemFormModal({ initial, onSave, onClose }: {
+function ItemFormModal({
+  initial,
+  onSave,
+  onClose
+}: {
   initial?: Partial<InventoryItem>
   onSave: (data: ItemFormData) => void
   onClose: () => void
@@ -244,16 +303,54 @@ function ItemFormModal({ initial, onSave, onClose }: {
   const [min, setMin] = useState(String(initial?.threshold ?? 5))
   const [cost, setCost] = useState(String(initial?.cost_per_unit ?? 0))
   return (
-    <Modal open onClose={onClose} title={initial?.id ? 'Edit Inventory Item' : 'New Inventory Item'} size="sm">
+    <Modal
+      open
+      onClose={onClose}
+      title={initial?.id ? 'Edit Inventory Item' : 'New Inventory Item'}
+      size="sm"
+    >
       <div className="p-6 space-y-4">
-        <div><Label>Item Name *</Label><Input value={name} onChange={(e) => setName(e.target.value)} autoFocus /></div>
-        <div><Label>Unit (e.g. kg, pcs, L)</Label><Input value={unit} onChange={(e) => setUnit(e.target.value)} /></div>
-        <div><Label>Current Stock</Label><Input type="number" step="0.01" value={stock} onChange={(e) => setStock(e.target.value)} /></div>
-        <div><Label>Min Stock Level (alert threshold)</Label><Input type="number" value={min} onChange={(e) => setMin(e.target.value)} /></div>
-        <div><Label>Cost per Unit</Label><Input type="number" step="0.01" value={cost} onChange={(e) => setCost(e.target.value)} /></div>
+        <div>
+          <Label>Item Name *</Label>
+          <Input value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+        </div>
+        <div>
+          <Label>Unit (e.g. kg, pcs, L)</Label>
+          <Input value={unit} onChange={(e) => setUnit(e.target.value)} />
+        </div>
+        <div>
+          <Label>Current Stock</Label>
+          <Input
+            type="number"
+            step="0.01"
+            value={stock}
+            onChange={(e) => setStock(e.target.value)}
+          />
+        </div>
+        <div>
+          <Label>Min Stock Level (alert threshold)</Label>
+          <Input type="number" value={min} onChange={(e) => setMin(e.target.value)} />
+        </div>
+        <div>
+          <Label>Cost per Unit</Label>
+          <Input type="number" step="0.01" value={cost} onChange={(e) => setCost(e.target.value)} />
+        </div>
         <div className="flex justify-end gap-2 pt-2">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={() => name && onSave({ name, unit, quantity: parseFloat(stock) || 0, threshold: parseFloat(min) || 0, cost_per_unit: parseFloat(cost) || 0 })}>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            onClick={() =>
+              name &&
+              onSave({
+                name,
+                unit,
+                quantity: parseFloat(stock) || 0,
+                threshold: parseFloat(min) || 0,
+                cost_per_unit: parseFloat(cost) || 0
+              })
+            }
+          >
             Save
           </Button>
         </div>

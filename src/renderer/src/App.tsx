@@ -6,16 +6,32 @@ import { useSessionStore } from './store'
 import { LoginPage as Login } from './pages/Login'
 
 const POSPage = lazy(() => import('./pages/POS/POSPage').then((m) => ({ default: m.POSPage })))
-const OrdersPage = lazy(() => import('./pages/Orders/OrdersPage').then((m) => ({ default: m.OrdersPage })))
+const OrdersPage = lazy(() =>
+  import('./pages/Orders/OrdersPage').then((m) => ({ default: m.OrdersPage }))
+)
 const MenuPage = lazy(() => import('./pages/Menu/MenuPage').then((m) => ({ default: m.MenuPage })))
-const InventoryPage = lazy(() => import('./pages/Inventory/InventoryPage').then((m) => ({ default: m.InventoryPage })))
-const ReportsPage = lazy(() => import('./pages/Reports/ReportsPage').then((m) => ({ default: m.ReportsPage })))
-const EmployeesPage = lazy(() => import('./pages/Employees/EmployeesPage').then((m) => ({ default: m.EmployeesPage })))
-const DiscountsPage = lazy(() => import('./pages/Discounts/DiscountsPage').then((m) => ({ default: m.DiscountsPage })))
-const SettingsPage = lazy(() => import('./pages/Settings/SettingsPage').then((m) => ({ default: m.SettingsPage })))
-const KitchenPage = lazy(() => import('./pages/Kitchen/KitchenPage').then((m) => ({ default: m.KitchenPage })))
+const InventoryPage = lazy(() =>
+  import('./pages/Inventory/InventoryPage').then((m) => ({ default: m.InventoryPage }))
+)
+const ReportsPage = lazy(() =>
+  import('./pages/Reports/ReportsPage').then((m) => ({ default: m.ReportsPage }))
+)
+const EmployeesPage = lazy(() =>
+  import('./pages/Employees/EmployeesPage').then((m) => ({ default: m.EmployeesPage }))
+)
+const DiscountsPage = lazy(() =>
+  import('./pages/Discounts/DiscountsPage').then((m) => ({ default: m.DiscountsPage }))
+)
+const SettingsPage = lazy(() =>
+  import('./pages/Settings/SettingsPage').then((m) => ({ default: m.SettingsPage }))
+)
+const KitchenPage = lazy(() =>
+  import('./pages/Kitchen/KitchenPage').then((m) => ({ default: m.KitchenPage }))
+)
 const CustomerDisplayPage = lazy(() =>
-  import('./pages/CustomerDisplay/CustomerDisplayPage').then((m) => ({ default: m.CustomerDisplayPage }))
+  import('./pages/CustomerDisplay/CustomerDisplayPage').then((m) => ({
+    default: m.CustomerDisplayPage
+  }))
 )
 
 function PageLoader(): JSX.Element {
@@ -55,10 +71,7 @@ function App(): React.JSX.Element {
         <Routes>
           <Route path="/kitchen" element={<KitchenPage />} />
           <Route path="/customer-display" element={<CustomerDisplayPage />} />
-          <Route
-            path="*"
-            element={isAuthenticated ? <AuthenticatedApp /> : <Login />}
-          />
+          <Route path="*" element={isAuthenticated ? <AuthenticatedApp /> : <Login />} />
         </Routes>
       </Suspense>
     </HashRouter>

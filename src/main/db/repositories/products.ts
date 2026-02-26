@@ -63,7 +63,10 @@ export function createCategory(data: Omit<Category, 'id' | 'created_at' | 'updat
   return getCategoryById(result.lastInsertRowid as number)!
 }
 
-export function updateCategory(id: number, data: Partial<Omit<Category, 'id' | 'created_at' | 'updated_at'>>): Category {
+export function updateCategory(
+  id: number,
+  data: Partial<Omit<Category, 'id' | 'created_at' | 'updated_at'>>
+): Category {
   const db = getDatabase()
   const existing = getCategoryById(id)!
   const updated = { ...existing, ...data }
@@ -111,7 +114,10 @@ export function createProduct(data: Omit<Product, 'id' | 'created_at' | 'updated
   return getProductById(result.lastInsertRowid as number)!
 }
 
-export function updateProduct(id: number, data: Partial<Omit<Product, 'id' | 'created_at' | 'updated_at'>>): Product {
+export function updateProduct(
+  id: number,
+  data: Partial<Omit<Product, 'id' | 'created_at' | 'updated_at'>>
+): Product {
   const db = getDatabase()
   const existing = getProductById(id)!
   const updated = { ...existing, ...data }
@@ -170,9 +176,11 @@ export function createModifierGroup(
       .run(data)
     const groupId = result.lastInsertRowid as number
     for (const mod of modifiers) {
-      db.prepare(
-        'INSERT INTO modifiers (group_id, name, price_delta) VALUES (?, ?, ?)'
-      ).run(groupId, mod.name, mod.price_delta)
+      db.prepare('INSERT INTO modifiers (group_id, name, price_delta) VALUES (?, ?, ?)').run(
+        groupId,
+        mod.name,
+        mod.price_delta
+      )
     }
     return groupId
   })
@@ -189,9 +197,10 @@ export function assignModifierGroupToProduct(productId: number, groupId: number)
 
 export function removeModifierGroupFromProduct(productId: number, groupId: number): void {
   const db = getDatabase()
-  db.prepare(
-    'DELETE FROM product_modifier_groups WHERE product_id = ? AND group_id = ?'
-  ).run(productId, groupId)
+  db.prepare('DELETE FROM product_modifier_groups WHERE product_id = ? AND group_id = ?').run(
+    productId,
+    groupId
+  )
 }
 
 export function searchProducts(query: string): (Product & { category_name: string })[] {

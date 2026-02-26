@@ -21,7 +21,7 @@ export function LoginPage(): JSX.Element {
 
   const handlePinComplete = async (pin: string): Promise<void> => {
     setPinError('')
-    const employee = await window.api.employees.verifyPin(pin) as Employee | null
+    const employee = (await window.api.employees.verifyPin(pin)) as Employee | null
     if (!employee) {
       setPinError('Incorrect PIN. Try again.')
       return
@@ -31,7 +31,7 @@ export function LoginPage(): JSX.Element {
       return
     }
     // Check if shift is already open
-    const openShift = await window.api.shifts.getOpen(employee.id) as Shift | null
+    const openShift = (await window.api.shifts.getOpen(employee.id)) as Shift | null
     if (openShift) {
       setEmployee(employee)
       setShift(openShift)
@@ -45,7 +45,7 @@ export function LoginPage(): JSX.Element {
     if (!verifiedEmployee) return
     setLoading(true)
     const float = parseFloat(openingFloat) || 0
-    const shift = await window.api.shifts.open(verifiedEmployee.id, float) as Shift
+    const shift = (await window.api.shifts.open(verifiedEmployee.id, float)) as Shift
     setEmployee(verifiedEmployee)
     setShift(shift)
     setLoading(false)
@@ -79,7 +79,14 @@ export function LoginPage(): JSX.Element {
           <Button onClick={handleOpenShift} className="w-full h-12" disabled={loading}>
             {loading ? <Spinner className="h-4 w-4" /> : 'Open Shift & Start'}
           </Button>
-          <Button variant="ghost" className="w-full" onClick={() => { setShowFloat(false); setVerifiedEmployee(null) }}>
+          <Button
+            variant="ghost"
+            className="w-full"
+            onClick={() => {
+              setShowFloat(false)
+              setVerifiedEmployee(null)
+            }}
+          >
             Back
           </Button>
         </div>

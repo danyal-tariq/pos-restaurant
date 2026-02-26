@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react'
-import { Modal, showToast } from '../../components/ui/Modal'
+import { useState, useEffect } from 'react'
+import { Modal } from '../../components/ui/Modal'
+import { showToast } from '../../components/ui/toast'
 import { Button, Input, Label, Spinner } from '../../components/ui/index'
-import { cn, formatCurrency } from '../../lib/utils'
+import { cn } from '../../lib/utils'
 import { useCartStore, useSessionStore, useSettingsStore } from '../../store'
 import { useTaxRate } from '../../hooks/useSettings'
-import type { OrderSummary, Discount } from '../../types'
-import { CreditCard, Banknote, SplitSquareVertical, Tag, ChevronDown } from 'lucide-react'
+import type { OrderSummary, Discount, Order } from '../../types'
+import { CreditCard, Banknote, SplitSquareVertical, Tag } from 'lucide-react'
 
 interface PaymentModalProps {
   summary: OrderSummary
@@ -16,7 +17,7 @@ interface PaymentModalProps {
 
 type Step = 'method' | 'cash' | 'card' | 'discount' | 'processing'
 
-export function PaymentModal({ summary, onClose, onSuccess, fmt }: PaymentModalProps): JSX.Element {
+export function PaymentModal({ onClose, onSuccess, fmt }: PaymentModalProps): JSX.Element {
   const cart = useCartStore()
   const { currentEmployee, currentShift } = useSessionStore()
   const settings = useSettingsStore((s) => s.settings)
@@ -44,14 +45,27 @@ export function PaymentModal({ summary, onClose, onSuccess, fmt }: PaymentModalP
   const handleApplyCoupon = async (): Promise<void> => {
     setCouponError('')
     if (!couponCode.trim()) return
-    const disc = await window.api.discounts.getByCode(couponCode.trim()) as Discount | null
-    if (!disc) { setCouponError('Invalid coupon code'); return }
+    const disc = (await window.api.discounts.getByCode(couponCode.trim())) as Discount | null
+    if (!disc) {
+      setCouponError('Invalid coupon code')
+      return
+    }
     const { valid, reason } = await window.api.discounts.validate(disc.id, recalcSummary.subtotal)
-    if (!valid) { setCouponError(reason ?? 'Invalid'); return }
-    const amount = disc.type === 'percentage'
-      ? Math.min((recalcSummary.subtotal * disc.value) / 100, recalcSummary.subtotal)
-      : Math.min(disc.value, recalcSummary.subtotal)
-    cart.applyDiscount({ discount_id: disc.id, name: disc.name, type: disc.type, value: disc.value, amount })
+    if (!valid) {
+      setCouponError(reason ?? 'Invalid')
+      return
+    }
+    const amount =
+      disc.type === 'percentage'
+        ? Math.min((recalcSummary.subtotal * disc.value) / 100, recalcSummary.subtotal)
+        : Math.min(disc.value, recalcSummary.subtotal)
+    cart.applyDiscount({
+      discount_id: disc.id,
+      name: disc.name,
+      type: disc.type,
+      value: disc.value,
+      amount
+    })
     setCouponCode('')
   }
 
@@ -59,11 +73,21 @@ export function PaymentModal({ summary, onClose, onSuccess, fmt }: PaymentModalP
     const already = cart.appliedDiscounts.find((d) => d.discount_id === disc.id)
     if (already) return
     const { valid, reason } = await window.api.discounts.validate(disc.id, recalcSummary.subtotal)
-    if (!valid) { showToast(reason ?? 'Invalid discount', 'error'); return }
-    const amount = disc.type === 'percentage'
-      ? Math.min((recalcSummary.subtotal * disc.value) / 100, recalcSummary.subtotal)
-      : Math.min(disc.value, recalcSummary.subtotal)
-    cart.applyDiscount({ discount_id: disc.id, name: disc.name, type: disc.type, value: disc.value, amount })
+    if (!valid) {
+      showToast(reason ?? 'Invalid discount', 'error')
+      return
+    }
+    const amount =
+      disc.type === 'percentage'
+        ? Math.min((recalcSummary.subtotal * disc.value) / 100, recalcSummary.subtotal)
+        : Math.min(disc.value, recalcSummary.subtotal)
+    cart.applyDiscount({
+      discount_id: disc.id,
+      name: disc.name,
+      type: disc.type,
+      value: disc.value,
+      amount
+    })
   }
 
   const handleCharge = async (): Promise<void> => {
@@ -95,9 +119,19 @@ export function PaymentModal({ summary, onClose, onSuccess, fmt }: PaymentModalP
         notes: item.notes || null
       }))
 
-      const payments: { method: string; amount: number; tendered?: number; change_given?: number }[] = []
+      const payments: {
+        method: string
+        amount: number
+        tendered?: number
+        change_given?: number
+      }[] = []
       if (paymentMethod === 'cash') {
-        payments.push({ method: 'cash', amount: finalSummary.total, tendered, change_given: change })
+        payments.push({
+          method: 'cash',
+          amount: finalSummary.total,
+          tendered,
+          change_given: change
+        })
       } else if (paymentMethod === 'card') {
         payments.push({ method: 'card', amount: finalSummary.total })
       } else {
@@ -109,7 +143,12 @@ export function PaymentModal({ summary, onClose, onSuccess, fmt }: PaymentModalP
 
       const discounts = cart.appliedDiscounts.map((d) => ({ ...d }))
 
-      const order = await window.api.orders.create(orderData, items, payments, discounts) as any
+      const order = (await window.api.orders.create(
+        orderData,
+        items,
+        payments,
+        discounts
+      )) as unknown as Order
 
       // Print receipt
       const employee = currentEmployee
@@ -123,7 +162,8 @@ export function PaymentModal({ summary, onClose, onSuccess, fmt }: PaymentModalP
         customerName: cart.customerName || undefined,
         items: cart.items.map((item) => ({
           name: item.product_name,
-          modifiers: item.modifiers.length > 0 ? item.modifiers.map((m) => m.name).join(', ') : undefined,
+          modifiers:
+            item.modifiers.length > 0 ? item.modifiers.map((m) => m.name).join(', ') : undefined,
           qty: item.quantity,
           unitPrice: item.unit_price + item.modifiers_price,
           total: item.line_total
@@ -148,7 +188,8 @@ export function PaymentModal({ summary, onClose, onSuccess, fmt }: PaymentModalP
         items: cart.items.map((item) => ({
           name: item.product_name,
           quantity: item.quantity,
-          modifiers: item.modifiers.length > 0 ? item.modifiers.map((m) => m.name).join(', ') : undefined,
+          modifiers:
+            item.modifiers.length > 0 ? item.modifiers.map((m) => m.name).join(', ') : undefined,
           notes: item.notes || undefined
         })),
         notes: cart.notes || undefined,
@@ -186,13 +227,23 @@ export function PaymentModal({ summary, onClose, onSuccess, fmt }: PaymentModalP
         <div className="p-6 space-y-5">
           {/* Order summary */}
           <div className="rounded-xl bg-muted/50 p-4 space-y-2 text-sm">
-            <div className="flex justify-between"><span>Subtotal</span><span>{fmt(recalcSummary.subtotal)}</span></div>
+            <div className="flex justify-between">
+              <span>Subtotal</span>
+              <span>{fmt(recalcSummary.subtotal)}</span>
+            </div>
             {recalcSummary.discountAmount > 0 && (
-              <div className="flex justify-between text-green-600"><span>Discount</span><span>-{fmt(recalcSummary.discountAmount)}</span></div>
+              <div className="flex justify-between text-green-600">
+                <span>Discount</span>
+                <span>-{fmt(recalcSummary.discountAmount)}</span>
+              </div>
             )}
-            <div className="flex justify-between"><span>Tax</span><span>{fmt(recalcSummary.taxAmount)}</span></div>
+            <div className="flex justify-between">
+              <span>Tax</span>
+              <span>{fmt(recalcSummary.taxAmount)}</span>
+            </div>
             <div className="flex justify-between text-lg font-bold border-t pt-2">
-              <span>Total</span><span className="text-primary">{fmt(recalcSummary.total)}</span>
+              <span>Total</span>
+              <span className="text-primary">{fmt(recalcSummary.total)}</span>
             </div>
           </div>
 
@@ -210,25 +261,30 @@ export function PaymentModal({ summary, onClose, onSuccess, fmt }: PaymentModalP
                 onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
                 className="flex-1"
               />
-              <Button variant="outline" onClick={handleApplyCoupon}>Apply</Button>
+              <Button variant="outline" onClick={handleApplyCoupon}>
+                Apply
+              </Button>
             </div>
             {couponError && <p className="text-xs text-destructive">{couponError}</p>}
             {availableDiscounts.filter((d) => !d.code).length > 0 && (
               <div className="flex flex-wrap gap-1">
-                {availableDiscounts.filter((d) => !d.code).map((disc) => (
-                  <button
-                    key={disc.id}
-                    onClick={() => handleApplyDiscount(disc)}
-                    className={cn(
-                      'text-xs px-2 py-1 rounded-full border transition-colors',
-                      cart.appliedDiscounts.find((a) => a.discount_id === disc.id)
-                        ? 'bg-green-100 border-green-400 text-green-700'
-                        : 'hover:bg-accent'
-                    )}
-                  >
-                    {disc.name} ({disc.type === 'percentage' ? `${disc.value}%` : fmt(disc.value)})
-                  </button>
-                ))}
+                {availableDiscounts
+                  .filter((d) => !d.code)
+                  .map((disc) => (
+                    <button
+                      key={disc.id}
+                      onClick={() => handleApplyDiscount(disc)}
+                      className={cn(
+                        'text-xs px-2 py-1 rounded-full border transition-colors',
+                        cart.appliedDiscounts.find((a) => a.discount_id === disc.id)
+                          ? 'bg-green-100 border-green-400 text-green-700'
+                          : 'hover:bg-accent'
+                      )}
+                    >
+                      {disc.name} ({disc.type === 'percentage' ? `${disc.value}%` : fmt(disc.value)}
+                      )
+                    </button>
+                  ))}
               </div>
             )}
           </div>
@@ -237,11 +293,13 @@ export function PaymentModal({ summary, onClose, onSuccess, fmt }: PaymentModalP
           <div className="space-y-3">
             <Label>Payment Method</Label>
             <div className="grid grid-cols-3 gap-2">
-              {([
-                { method: 'cash', label: 'Cash', icon: Banknote },
-                { method: 'card', label: 'Card', icon: CreditCard },
-                { method: 'split', label: 'Split', icon: SplitSquareVertical }
-              ] as const).map(({ method, label, icon: Icon }) => (
+              {(
+                [
+                  { method: 'cash', label: 'Cash', icon: Banknote },
+                  { method: 'card', label: 'Card', icon: CreditCard },
+                  { method: 'split', label: 'Split', icon: SplitSquareVertical }
+                ] as const
+              ).map(({ method, label, icon: Icon }) => (
                 <button
                   key={method}
                   onClick={() => setPaymentMethod(method)}
@@ -282,15 +340,18 @@ export function PaymentModal({ summary, onClose, onSuccess, fmt }: PaymentModalP
                 >
                   Exact
                 </button>
-                {[exactAmount, ...quickCashAmounts].filter((v, i, a) => a.indexOf(v) === i).slice(0, 4).map((a) => (
-                  <button
-                    key={a}
-                    onClick={() => setCashTendered(String(a))}
-                    className="px-3 py-1.5 rounded-lg border text-sm hover:bg-accent"
-                  >
-                    {fmt(a)}
-                  </button>
-                ))}
+                {[exactAmount, ...quickCashAmounts]
+                  .filter((v, i, a) => a.indexOf(v) === i)
+                  .slice(0, 4)
+                  .map((a) => (
+                    <button
+                      key={a}
+                      onClick={() => setCashTendered(String(a))}
+                      className="px-3 py-1.5 rounded-lg border text-sm hover:bg-accent"
+                    >
+                      {fmt(a)}
+                    </button>
+                  ))}
               </div>
               {tendered > 0 && tendered >= recalcSummary.total && (
                 <div className="flex items-center justify-between rounded-xl bg-green-50 border border-green-200 px-4 py-3">
@@ -306,13 +367,26 @@ export function PaymentModal({ summary, onClose, onSuccess, fmt }: PaymentModalP
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>Cash amount</Label>
-                <Input type="number" step="0.01" value={splitCash} onChange={(e) => setSplitCash(e.target.value)} placeholder="0.00" />
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={splitCash}
+                  onChange={(e) => setSplitCash(e.target.value)}
+                  placeholder="0.00"
+                />
               </div>
               <div>
                 <Label>Card amount</Label>
-                <Input type="number" step="0.01" value={splitCard} onChange={(e) => setSplitCard(e.target.value)} placeholder="0.00" />
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={splitCard}
+                  onChange={(e) => setSplitCard(e.target.value)}
+                  placeholder="0.00"
+                />
               </div>
-              {(parseFloat(splitCash) || 0) + (parseFloat(splitCard) || 0) !== recalcSummary.total && (
+              {(parseFloat(splitCash) || 0) + (parseFloat(splitCard) || 0) !==
+                recalcSummary.total && (
                 <p className="col-span-2 text-xs text-destructive">
                   Split total must equal {fmt(recalcSummary.total)}
                 </p>
@@ -328,7 +402,9 @@ export function PaymentModal({ summary, onClose, onSuccess, fmt }: PaymentModalP
               processing ||
               (paymentMethod === 'cash' && tendered < recalcSummary.total) ||
               (paymentMethod === 'split' &&
-                Math.abs((parseFloat(splitCash) || 0) + (parseFloat(splitCard) || 0) - recalcSummary.total) > 0.01)
+                Math.abs(
+                  (parseFloat(splitCash) || 0) + (parseFloat(splitCard) || 0) - recalcSummary.total
+                ) > 0.01)
             }
           >
             {processing ? <Spinner className="h-5 w-5" /> : `Charge ${fmt(recalcSummary.total)}`}

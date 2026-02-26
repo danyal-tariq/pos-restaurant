@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { cn } from '../lib/utils'
 import { useSessionStore } from '../store'
-import { Toast, useToasts } from './ui/Modal'
+import { Toast } from './ui/Modal'
+import { useToasts } from './ui/toast'
 import {
   ShoppingCart,
   ChefHat,
@@ -71,7 +72,12 @@ export function Layout({ children }: LayoutProps): JSX.Element {
             className="rounded-lg p-1.5 hover:bg-accent transition-colors"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
             </svg>
           </button>
         </div>
@@ -136,9 +142,7 @@ export function Layout({ children }: LayoutProps): JSX.Element {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-hidden flex flex-col">
-        {children}
-      </main>
+      <main className="flex-1 overflow-hidden flex flex-col">{children}</main>
 
       {/* Toast notifications */}
       <div className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2">

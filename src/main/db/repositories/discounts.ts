@@ -29,9 +29,9 @@ export function getDiscountById(id: number): Discount | undefined {
 
 export function getDiscountByCode(code: string): Discount | undefined {
   const db = getDatabase()
-  return db
-    .prepare('SELECT * FROM discounts WHERE code = ? AND active = 1')
-    .get(code) as Discount | undefined
+  return db.prepare('SELECT * FROM discounts WHERE code = ? AND active = 1').get(code) as
+    | Discount
+    | undefined
 }
 
 export function createDiscount(data: Omit<Discount, 'id' | 'uses_count' | 'created_at'>): Discount {
@@ -45,7 +45,10 @@ export function createDiscount(data: Omit<Discount, 'id' | 'uses_count' | 'creat
   return getDiscountById(result.lastInsertRowid as number)!
 }
 
-export function updateDiscount(id: number, data: Partial<Omit<Discount, 'id' | 'uses_count' | 'created_at'>>): Discount {
+export function updateDiscount(
+  id: number,
+  data: Partial<Omit<Discount, 'id' | 'uses_count' | 'created_at'>>
+): Discount {
   const db = getDatabase()
   const existing = getDiscountById(id)!
   const updated = { ...existing, ...data }
@@ -67,11 +70,15 @@ export function validateDiscount(
   orderSubtotal: number
 ): { valid: boolean; reason?: string } {
   const discount = getDiscountById(discountId)
-  if (!discount || !discount.active) return { valid: false, reason: 'Discount not found or inactive' }
+  if (!discount || !discount.active)
+    return { valid: false, reason: 'Discount not found or inactive' }
   if (discount.max_uses && discount.uses_count >= discount.max_uses)
     return { valid: false, reason: 'Discount has reached maximum uses' }
   if (orderSubtotal < discount.min_order_amount)
-    return { valid: false, reason: `Minimum order amount is $${discount.min_order_amount.toFixed(2)}` }
+    return {
+      valid: false,
+      reason: `Minimum order amount is $${discount.min_order_amount.toFixed(2)}`
+    }
 
   // Check time-based validity
   if (discount.start_time || discount.end_time) {
@@ -87,8 +94,7 @@ export function validateDiscount(
   if (discount.days_of_week) {
     const days = discount.days_of_week.split(',').map((d) => parseInt(d.trim(), 10))
     const currentDay = new Date().getDay()
-    if (!days.includes(currentDay))
-      return { valid: false, reason: 'Discount not valid today' }
+    if (!days.includes(currentDay)) return { valid: false, reason: 'Discount not valid today' }
   }
 
   return { valid: true }
@@ -105,7 +111,7 @@ export function calculateDiscountAmount(discount: Discount, subtotal: number): n
 export function getAutoApplicableDiscounts(orderSubtotal: number): Discount[] {
   const db = getDatabase()
   const activeDiscounts = db
-    .prepare("SELECT * FROM discounts WHERE active = 1 AND code IS NULL")
+    .prepare('SELECT * FROM discounts WHERE active = 1 AND code IS NULL')
     .all() as Discount[]
   return activeDiscounts.filter((d) => validateDiscount(d.id, orderSubtotal).valid)
 }

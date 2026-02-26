@@ -34,9 +34,9 @@ export function getLowStockItems(): InventoryItem[] {
 
 export function getInventoryItemById(id: number): InventoryItem | undefined {
   const db = getDatabase()
-  return db
-    .prepare('SELECT * FROM inventory_items WHERE id = ?')
-    .get(id) as InventoryItem | undefined
+  return db.prepare('SELECT * FROM inventory_items WHERE id = ?').get(id) as
+    | InventoryItem
+    | undefined
 }
 
 export function createInventoryItem(
@@ -133,7 +133,10 @@ export function setProductIngredients(
   tx()
 }
 
-export function getInventoryValuation(): { total_value: number; items: (InventoryItem & { value: number })[] } {
+export function getInventoryValuation(): {
+  total_value: number
+  items: (InventoryItem & { value: number })[]
+} {
   const db = getDatabase()
   const items = db
     .prepare('SELECT *, (quantity * cost_per_unit) as value FROM inventory_items ORDER BY name')

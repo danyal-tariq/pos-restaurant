@@ -57,13 +57,13 @@ export type OrderWithItems = Order & {
 
 function generateOrderNumber(): string {
   const db = getDatabase()
-  const setting = db.prepare("SELECT value FROM settings WHERE key = 'order_number_prefix'").get() as
-    | { value: string }
-    | undefined
+  const setting = db
+    .prepare("SELECT value FROM settings WHERE key = 'order_number_prefix'")
+    .get() as { value: string } | undefined
   const prefix = setting?.value ?? 'ORD'
-  const lastOrder = db
-    .prepare("SELECT order_number FROM orders ORDER BY id DESC LIMIT 1")
-    .get() as { order_number: string } | undefined
+  const lastOrder = db.prepare('SELECT order_number FROM orders ORDER BY id DESC LIMIT 1').get() as
+    | { order_number: string }
+    | undefined
   let nextNum = 1
   if (lastOrder) {
     const parts = lastOrder.order_number.split('-')
@@ -130,9 +130,9 @@ export function createOrder(
          VALUES (?, ?, ?, ?, ?, ?)`
       ).run(orderId, disc.discount_id ?? null, disc.name, disc.type, disc.value, disc.amount)
       if (disc.discount_id) {
-        db.prepare(
-          'UPDATE discounts SET uses_count = uses_count + 1 WHERE id = ?'
-        ).run(disc.discount_id)
+        db.prepare('UPDATE discounts SET uses_count = uses_count + 1 WHERE id = ?').run(
+          disc.discount_id
+        )
       }
     }
 
@@ -143,7 +143,7 @@ export function createOrder(
         .all(item.product_id) as { inventory_item_id: number; quantity_used: number }[]
       for (const ing of ingredients) {
         db.prepare(
-          'UPDATE inventory_items SET quantity = quantity - ?, updated_at = datetime(\'now\') WHERE id = ?'
+          "UPDATE inventory_items SET quantity = quantity - ?, updated_at = datetime('now') WHERE id = ?"
         ).run(ing.quantity_used * item.quantity, ing.inventory_item_id)
       }
     }
@@ -164,9 +164,9 @@ export function getOrderById(id: number): OrderWithItems | undefined {
 
 export function getOrderByNumber(orderNumber: string): OrderWithItems | undefined {
   const db = getDatabase()
-  const order = db
-    .prepare('SELECT * FROM orders WHERE order_number = ?')
-    .get(orderNumber) as Order | undefined
+  const order = db.prepare('SELECT * FROM orders WHERE order_number = ?').get(orderNumber) as
+    | Order
+    | undefined
   if (!order) return undefined
   return enrichOrder(order)
 }
@@ -190,9 +190,10 @@ function enrichOrder(order: Order): OrderWithItems {
 
 export function updateOrderStatus(id: number, status: Order['status']): void {
   const db = getDatabase()
-  db.prepare(
-    "UPDATE orders SET status = ?, updated_at = datetime('now') WHERE id = ?"
-  ).run(status, id)
+  db.prepare("UPDATE orders SET status = ?, updated_at = datetime('now') WHERE id = ?").run(
+    status,
+    id
+  )
 }
 
 export function updateOrderItemStatus(itemId: number, status: string): void {
@@ -202,9 +203,9 @@ export function updateOrderItemStatus(itemId: number, status: string): void {
 
 export function voidOrder(id: number, _employeeId: number): void {
   const db = getDatabase()
-  db.prepare(
-    "UPDATE orders SET status = 'voided', updated_at = datetime('now') WHERE id = ?"
-  ).run(id)
+  db.prepare("UPDATE orders SET status = 'voided', updated_at = datetime('now') WHERE id = ?").run(
+    id
+  )
 }
 
 export function getActiveOrders(): OrderWithItems[] {
@@ -242,7 +243,9 @@ export function getOrdersPage(
     params.push(`%${filter.search}%`, `%${filter.search}%`)
   }
   const total = (
-    db.prepare(`SELECT COUNT(*) as cnt FROM orders o WHERE ${where}`).get(...params) as { cnt: number }
+    db.prepare(`SELECT COUNT(*) as cnt FROM orders o WHERE ${where}`).get(...params) as {
+      cnt: number
+    }
   ).cnt
   const offset = (page - 1) * pageSize
   const rows = db

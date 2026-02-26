@@ -8,6 +8,7 @@
   ],
   "compilerOptions": {
     "composite": true,
+    "outDir": "out/renderer",
     "jsx": "react-jsx",
     "baseUrl": ".",
     "noUnusedLocals": false,

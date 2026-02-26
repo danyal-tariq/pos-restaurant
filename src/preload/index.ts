@@ -73,8 +73,7 @@ const api = {
   },
   // Employees
   employees: {
-    getAll: (includeInactive?: boolean) =>
-      ipcRenderer.invoke('employees:getAll', includeInactive),
+    getAll: (includeInactive?: boolean) => ipcRenderer.invoke('employees:getAll', includeInactive),
     getById: (id: number) => ipcRenderer.invoke('employees:getById', id),
     verifyPin: (pin: string) => ipcRenderer.invoke('employees:verifyPin', pin),
     create: (data: unknown) => ipcRenderer.invoke('employees:create', data),
@@ -92,8 +91,7 @@ const api = {
   },
   // Discounts
   discounts: {
-    getAll: (includeInactive?: boolean) =>
-      ipcRenderer.invoke('discounts:getAll', includeInactive),
+    getAll: (includeInactive?: boolean) => ipcRenderer.invoke('discounts:getAll', includeInactive),
     getByCode: (code: string) => ipcRenderer.invoke('discounts:getByCode', code),
     validate: (id: number, subtotal: number) =>
       ipcRenderer.invoke('discounts:validate', id, subtotal),
@@ -113,10 +111,8 @@ const api = {
     products: (start: string, end: string) => ipcRenderer.invoke('reports:products', start, end),
     categories: (start: string, end: string) =>
       ipcRenderer.invoke('reports:categories', start, end),
-    payments: (start: string, end: string) =>
-      ipcRenderer.invoke('reports:payments', start, end),
-    employees: (start: string, end: string) =>
-      ipcRenderer.invoke('reports:employees', start, end)
+    payments: (start: string, end: string) => ipcRenderer.invoke('reports:payments', start, end),
+    employees: (start: string, end: string) => ipcRenderer.invoke('reports:employees', start, end)
   },
   // Printer
   printer: {
@@ -134,8 +130,7 @@ const api = {
   // Customer display
   customer: {
     updateCart: (cartData: unknown) => ipcRenderer.invoke('customer:updateCart', cartData),
-    showPayment: (paymentData: unknown) =>
-      ipcRenderer.invoke('customer:showPayment', paymentData),
+    showPayment: (paymentData: unknown) => ipcRenderer.invoke('customer:showPayment', paymentData),
     clearDisplay: () => ipcRenderer.invoke('customer:clearDisplay')
   },
   // Event listeners (push events from main)

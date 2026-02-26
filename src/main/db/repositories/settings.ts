@@ -10,7 +10,10 @@ export function getSetting(key: string): string | undefined {
 
 export function getAllSettings(): Record<string, string> {
   const db = getDatabase()
-  const rows = db.prepare('SELECT key, value FROM settings').all() as { key: string; value: string }[]
+  const rows = db.prepare('SELECT key, value FROM settings').all() as {
+    key: string
+    value: string
+  }[]
   return Object.fromEntries(rows.map((r) => [r.key, r.value]))
 }
 

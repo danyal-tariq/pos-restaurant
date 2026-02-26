@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React from 'react'
 import { cn } from '../../lib/utils'
 import { cva, type VariantProps } from 'class-variance-authority'
@@ -28,8 +27,7 @@ const buttonVariants = cva(
 )
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {}
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {}
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, ...props }, ref) => (
@@ -58,18 +56,14 @@ const badgeVariants = cva(
 )
 
 export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {}
 
 export function Badge({ className, variant, ...props }: BadgeProps): JSX.Element {
   return <div className={cn(badgeVariants({ variant }), className)} {...props} />
 }
 
 // ── Card ──────────────────────────────────────────────────────────────────────
-export function Card({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>): JSX.Element {
+export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>): JSX.Element {
   return (
     <div
       className={cn('rounded-xl border bg-card text-card-foreground shadow-sm', className)}
@@ -90,10 +84,7 @@ export function CardTitle({
   ...props
 }: React.HTMLAttributes<HTMLHeadingElement>): JSX.Element {
   return (
-    <h3
-      className={cn('text-lg font-semibold leading-none tracking-tight', className)}
-      {...props}
-    />
+    <h3 className={cn('text-lg font-semibold leading-none tracking-tight', className)} {...props} />
   )
 }
 

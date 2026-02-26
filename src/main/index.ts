@@ -76,16 +76,19 @@ function createKitchenWindow(): BrowserWindow {
 
   kitchenWindow.on('ready-to-show', () => kitchenWindow?.show())
 
-  const url = is.dev && process.env['ELECTRON_RENDERER_URL']
-    ? `${process.env['ELECTRON_RENDERER_URL']}#/kitchen`
-    : join(__dirname, '../renderer/index.html')
+  const url =
+    is.dev && process.env['ELECTRON_RENDERER_URL']
+      ? `${process.env['ELECTRON_RENDERER_URL']}#/kitchen`
+      : join(__dirname, '../renderer/index.html')
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     kitchenWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}#/kitchen`)
   } else {
     kitchenWindow.loadFile(url, { hash: 'kitchen' })
   }
 
-  kitchenWindow.on('closed', () => { kitchenWindow = null })
+  kitchenWindow.on('closed', () => {
+    kitchenWindow = null
+  })
 
   return kitchenWindow
 }
@@ -123,7 +126,9 @@ function createCustomerWindow(): BrowserWindow {
     })
   }
 
-  customerWindow.on('closed', () => { customerWindow = null })
+  customerWindow.on('closed', () => {
+    customerWindow = null
+  })
 
   return customerWindow
 }
@@ -133,8 +138,20 @@ function setupTray(): void {
   tray = new Tray(trayIcon.resize({ width: 16, height: 16 }))
   const menu = Menu.buildFromTemplate([
     { label: 'Show POS', click: () => mainWindow?.show() },
-    { label: 'Kitchen Display', click: () => { if (!kitchenWindow) createKitchenWindow(); else kitchenWindow.show() } },
-    { label: 'Customer Display', click: () => { if (!customerWindow) createCustomerWindow(); else customerWindow.show() } },
+    {
+      label: 'Kitchen Display',
+      click: () => {
+        if (!kitchenWindow) createKitchenWindow()
+        else kitchenWindow.show()
+      }
+    },
+    {
+      label: 'Customer Display',
+      click: () => {
+        if (!customerWindow) createCustomerWindow()
+        else customerWindow.show()
+      }
+    },
     { type: 'separator' },
     { label: 'Quit', click: () => app.quit() }
   ])

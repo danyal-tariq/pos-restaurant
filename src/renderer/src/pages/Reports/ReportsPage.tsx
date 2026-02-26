@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react'
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts'
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  Legend
+} from 'recharts'
 import { useCurrency } from '../../hooks/useSettings'
 import { Card, Badge, Spinner } from '../../components/ui/index'
 import { TrendingUp, ShoppingCart, DollarSign, Package, Users, Calendar } from 'lucide-react'
@@ -14,7 +25,13 @@ interface StatCardProps {
   trend?: string
   color?: string
 }
-function StatCard({ label, value, icon, trend, color = 'bg-primary/10 text-primary' }: StatCardProps): JSX.Element {
+function StatCard({
+  label,
+  value,
+  icon,
+  trend,
+  color = 'bg-primary/10 text-primary'
+}: StatCardProps): JSX.Element {
   return (
     <Card className="p-5 flex items-start gap-4">
       <div className={`rounded-xl p-2.5 ${color}`}>{icon}</div>
@@ -32,9 +49,15 @@ export function ReportsPage(): JSX.Element {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [period, setPeriod] = useState<Period>('today')
   const [salesData, setSalesData] = useState<SalesDataPoint[]>([])
-  const [productData, setProductData] = useState<{ product_name: string; qty: number; revenue: number }[]>([])
-  const [categoryData, setCategoryData] = useState<{ category_name: string; orders: number; revenue: number }[]>([])
-  const [paymentData, setPaymentData] = useState<{ method: string; count: number; total_amount: number }[]>([])
+  const [productData, setProductData] = useState<
+    { product_name: string; qty: number; revenue: number }[]
+  >([])
+  const [categoryData, setCategoryData] = useState<
+    { category_name: string; orders: number; revenue: number }[]
+  >([])
+  const [paymentData, setPaymentData] = useState<
+    { method: string; count: number; total_amount: number }[]
+  >([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -62,15 +85,23 @@ export function ReportsPage(): JSX.Element {
       const today = new Date().toISOString().slice(0, 10)
       const weekStart = new Date(Date.now() - 6 * 86400000).toISOString().slice(0, 10)
       const yearStart = today.slice(0, 4) + '-01-01'
-      if (period === 'today') data = await window.api.reports.salesByHour(today) as SalesDataPoint[]
-      else if (period === 'week') data = await window.api.reports.salesByDay(weekStart, today) as SalesDataPoint[]
-      else data = await window.api.reports.salesByMonth(new Date().getFullYear()) as SalesDataPoint[]
+      if (period === 'today')
+        data = (await window.api.reports.salesByHour(today)) as SalesDataPoint[]
+      else if (period === 'week')
+        data = (await window.api.reports.salesByDay(weekStart, today)) as SalesDataPoint[]
+      else
+        data = (await window.api.reports.salesByMonth(new Date().getFullYear())) as SalesDataPoint[]
       setSalesData(data)
     }
     loadSales()
   }, [period])
 
-  if (loading) return <div className="flex items-center justify-center h-full"><Spinner className="h-10 w-10" /></div>
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Spinner className="h-10 w-10" />
+      </div>
+    )
 
   return (
     <div className="flex flex-col h-full overflow-auto p-6 gap-6">
@@ -129,7 +160,12 @@ export function ReportsPage(): JSX.Element {
             <XAxis dataKey="label" tick={{ fontSize: 11 }} />
             <YAxis tick={{ fontSize: 11 }} />
             <Tooltip formatter={(v: number | undefined) => fmt(v ?? 0)} />
-            <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Revenue" />
+            <Bar
+              dataKey="revenue"
+              fill="hsl(var(--primary))"
+              radius={[4, 4, 0, 0]}
+              name="Revenue"
+            />
           </BarChart>
         </ResponsiveContainer>
       </Card>
@@ -182,7 +218,9 @@ export function ReportsPage(): JSX.Element {
               </div>
             ))}
           </div>
-          {paymentData.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No data yet</p>}
+          {paymentData.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4">No data yet</p>
+          )}
         </Card>
       </div>
 
@@ -192,7 +230,10 @@ export function ReportsPage(): JSX.Element {
           <h2 className="font-bold text-base mb-3">Today's Best Sellers</h2>
           <div className="flex flex-wrap gap-2">
             {stats.top_products.map((p, i) => (
-              <div key={p.product_name} className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2">
+              <div
+                key={p.product_name}
+                className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2"
+              >
                 <span className="text-xs text-muted-foreground font-bold">#{i + 1}</span>
                 <span className="text-sm font-medium">{p.product_name}</span>
                 <Badge variant="secondary">{p.qty} sold</Badge>

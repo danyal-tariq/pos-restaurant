@@ -1,6 +1,6 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 
-type PosAPI = typeof import('./index')['api'] extends infer T ? T : never
+type PosAPI = (typeof import('./index'))['api'] extends infer T ? T : never
 
 declare global {
   interface Window {
@@ -34,10 +34,19 @@ declare global {
         removeFromProduct: (productId: number, groupId: number) => Promise<void>
       }
       orders: {
-        create: (data: unknown, items: unknown, payments: unknown, discounts: unknown) => Promise<unknown>
+        create: (
+          data: unknown,
+          items: unknown,
+          payments: unknown,
+          discounts: unknown
+        ) => Promise<unknown>
         getById: (id: number) => Promise<unknown>
         getActive: () => Promise<unknown[]>
-        getPage: (page: number, pageSize: number, filter?: unknown) => Promise<{ rows: unknown[]; total: number }>
+        getPage: (
+          page: number,
+          pageSize: number,
+          filter?: unknown
+        ) => Promise<{ rows: unknown[]; total: number }>
         getToday: () => Promise<unknown[]>
         updateStatus: (id: number, status: string) => Promise<unknown>
         updateItemStatus: (itemId: number, status: string) => Promise<void>

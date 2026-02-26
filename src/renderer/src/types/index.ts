@@ -18,13 +18,13 @@ export interface Product {
   name: string
   description: string | null
   price: number
-  cost?: number                  // optional cost price
+  cost?: number // optional cost price
   image_path: string | null
   sku: string | null
   active: number
-  is_active?: boolean            // alias for active !== 0
+  is_active?: boolean // alias for active !== 0
   track_inventory: number
-  stock_quantity?: number        // optional tracked stock
+  stock_quantity?: number // optional tracked stock
   created_at: string
   updated_at: string
 }
@@ -47,7 +47,7 @@ export interface ModifierGroup {
 }
 
 export interface CartItem {
-  id: string                     // local uuid
+  id: string // local uuid
   product_id: number
   product_name: string
   quantity: number
@@ -92,6 +92,7 @@ export interface Order {
   notes: string | null
   created_at: string
   updated_at: string
+  item_count?: number
   items?: OrderItemRecord[]
   payments?: PaymentRecord[]
   discounts?: AppliedDiscount[]
@@ -127,8 +128,8 @@ export interface Employee {
   pin: string
   role: 'admin' | 'manager' | 'cashier'
   active: number
-  is_active?: boolean            // alias: active !== 0
-  hourly_rate?: number           // optional pay rate
+  is_active?: boolean // alias: active !== 0
+  hourly_rate?: number // optional pay rate
   created_at: string
   updated_at: string
 }
@@ -141,8 +142,8 @@ export interface Shift {
   closed_at: string | null
   opening_float: number
   closing_cash: number | null
-  total_cash?: number            // total cash collected
-  total_card?: number            // total card collected
+  total_cash?: number // total cash collected
+  total_card?: number // total card collected
   total_sales: number | null
   total_orders: number | null
   notes: string | null
@@ -152,8 +153,8 @@ export interface InventoryItem {
   id: number
   name: string
   unit: string
-  quantity: number          // DB column: quantity
-  threshold: number         // DB column: threshold (min stock level)
+  quantity: number // DB column: quantity
+  threshold: number // DB column: threshold (min stock level)
   cost_per_unit: number
   created_at: string
   updated_at: string

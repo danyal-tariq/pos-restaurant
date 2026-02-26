@@ -1,15 +1,24 @@
-import React, { useEffect, useState, useCallback } from 'react'
-import { cn, formatCurrency, orderTypeLabel } from '../../lib/utils'
-import { useCartStore, useSessionStore, useSettingsStore } from '../../store'
+import { useEffect, useState } from 'react'
+import { cn, orderTypeLabel } from '../../lib/utils'
+import { useCartStore, useSessionStore } from '../../store'
 import { useTaxRate, useCurrency } from '../../hooks/useSettings'
 import { PaymentModal } from './PaymentModal'
 import { ModifierModal } from './ModifierModal'
 import { Button, Badge, EmptyState, Spinner } from '../../components/ui/index'
-import { Modal, showToast } from '../../components/ui/Modal'
+import { Modal } from '../../components/ui/Modal'
+import { showToast } from '../../components/ui/toast'
 import type { Category, Product, ModifierGroup } from '../../types'
 import {
-  Search, Plus, Minus, Trash2, ShoppingCart, PauseCircle,
-  PlayCircle, ChevronDown, UtensilsCrossed, Package, Bike, FileText
+  Search,
+  Plus,
+  Minus,
+  Trash2,
+  ShoppingCart,
+  PauseCircle,
+  PlayCircle,
+  UtensilsCrossed,
+  Package,
+  Bike
 } from 'lucide-react'
 
 export function POSPage(): JSX.Element {
@@ -32,16 +41,15 @@ export function POSPage(): JSX.Element {
   const summary = cart.calcSummary(taxRate, taxInclusive)
 
   useEffect(() => {
-    Promise.all([
-      window.api.categories.getAll(),
-      window.api.products.getAll()
-    ]).then(([cats, prods]) => {
-      const c = cats as Category[]
-      setCategories(c)
-      setProducts(prods as Product[])
-      if (c.length > 0) setSelectedCategory(c[0].id)
-      setLoading(false)
-    })
+    Promise.all([window.api.categories.getAll(), window.api.products.getAll()]).then(
+      ([cats, prods]) => {
+        const c = cats as Category[]
+        setCategories(c)
+        setProducts(prods as Product[])
+        if (c.length > 0) setSelectedCategory(c[0].id)
+        setLoading(false)
+      }
+    )
   }, [])
 
   // Sync cart with customer display
@@ -59,14 +67,15 @@ export function POSPage(): JSX.Element {
   }, [cart.items, summary, cart.orderType, cart.tableNumber, cart.customerName])
 
   const filteredProducts = searchQuery
-    ? products.filter((p) =>
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (p.sku && p.sku.toLowerCase().includes(searchQuery.toLowerCase()))
+    ? products.filter(
+        (p) =>
+          p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (p.sku && p.sku.toLowerCase().includes(searchQuery.toLowerCase()))
       )
     : products.filter((p) => p.category_id === selectedCategory)
 
   const handleProductClick = async (product: Product): Promise<void> => {
-    const groups = await window.api.products.getModifierGroups(product.id) as ModifierGroup[]
+    const groups = (await window.api.products.getModifierGroups(product.id)) as ModifierGroup[]
     if (groups.length > 0) {
       setModifierGroups(groups)
       setModifierModalProduct(product)
@@ -101,7 +110,8 @@ export function POSPage(): JSX.Element {
   }
 
   const handleHoldOrder = (): void => {
-    const label = holdLabel.trim() || `Table ${cart.tableNumber || 'Hold ' + (cart.heldOrders.length + 1)}`
+    const label =
+      holdLabel.trim() || `Table ${cart.tableNumber || 'Hold ' + (cart.heldOrders.length + 1)}`
     cart.holdCurrentOrder(label)
     setShowHoldInput(false)
     setHoldLabel('')
@@ -133,9 +143,12 @@ export function POSPage(): JSX.Element {
       notes: item.notes || null
     }))
     try {
-      const order = await window.api.orders.create(
-        orderData, items, [], cart.appliedDiscounts.map((d) => ({ ...d }))
-      ) as { order_number: string }
+      const order = (await window.api.orders.create(
+        orderData,
+        items,
+        [],
+        cart.appliedDiscounts.map((d) => ({ ...d }))
+      )) as { order_number: string }
       cart.clearCart()
       showToast(`Order ${order.order_number} sent to kitchen!`, 'success')
     } catch (err) {
@@ -254,7 +267,9 @@ export function POSPage(): JSX.Element {
             <EmptyState
               icon={searchQuery ? '🔍' : '🍽️'}
               title={searchQuery ? 'No products found' : 'No products in this category'}
-              description={searchQuery ? 'Try a different search term' : 'Add products in Menu Management'}
+              description={
+                searchQuery ? 'Try a different search term' : 'Add products in Menu Management'
+              }
             />
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
@@ -278,9 +293,7 @@ export function POSPage(): JSX.Element {
           <div className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5 text-primary" />
             <span className="font-semibold">Order</span>
-            {cart.items.length > 0 && (
-              <Badge variant="secondary">{cart.items.length}</Badge>
-            )}
+            {cart.items.length > 0 && <Badge variant="secondary">{cart.items.length}</Badge>}
           </div>
           <div className="flex gap-1">
             {cart.items.length > 0 && (
@@ -316,9 +329,7 @@ export function POSPage(): JSX.Element {
               description="Tap items to add them"
             />
           ) : (
-            cart.items.map((item) => (
-              <CartItemRow key={item.id} item={item} fmt={fmt} />
-            ))
+            cart.items.map((item) => <CartItemRow key={item.id} item={item} fmt={fmt} />)
           )}
         </div>
 
@@ -405,9 +416,16 @@ export function POSPage(): JSX.Element {
       )}
 
       {/* Hold order label input */}
-      <Modal open={showHoldInput} onClose={() => setShowHoldInput(false)} title="Hold Order" size="sm">
+      <Modal
+        open={showHoldInput}
+        onClose={() => setShowHoldInput(false)}
+        title="Hold Order"
+        size="sm"
+      >
         <div className="p-6 space-y-4">
-          <p className="text-sm text-muted-foreground">Give this order a label so you can find it easily.</p>
+          <p className="text-sm text-muted-foreground">
+            Give this order a label so you can find it easily.
+          </p>
           <input
             type="text"
             placeholder={`Order ${cart.heldOrders.length + 1}`}
@@ -418,14 +436,21 @@ export function POSPage(): JSX.Element {
             autoFocus
           />
           <div className="flex gap-2 justify-end">
-            <Button variant="outline" onClick={() => setShowHoldInput(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowHoldInput(false)}>
+              Cancel
+            </Button>
             <Button onClick={handleHoldOrder}>Hold Order</Button>
           </div>
         </div>
       </Modal>
 
       {/* Held orders list */}
-      <Modal open={showHeldOrders} onClose={() => setShowHeldOrders(false)} title="Held Orders" size="sm">
+      <Modal
+        open={showHeldOrders}
+        onClose={() => setShowHeldOrders(false)}
+        title="Held Orders"
+        size="sm"
+      >
         <div className="p-4 space-y-2">
           {cart.heldOrders.map((held) => (
             <div key={held.id} className="flex items-center gap-3 rounded-lg border p-3">
@@ -433,7 +458,13 @@ export function POSPage(): JSX.Element {
                 <p className="font-medium truncate">{held.label}</p>
                 <p className="text-xs text-muted-foreground">{held.items.length} items</p>
               </div>
-              <Button size="sm" onClick={() => { cart.resumeHeldOrder(held.id); setShowHeldOrders(false) }}>
+              <Button
+                size="sm"
+                onClick={() => {
+                  cart.resumeHeldOrder(held.id)
+                  setShowHeldOrders(false)
+                }}
+              >
                 Resume
               </Button>
               <Button size="sm" variant="destructive" onClick={() => cart.deleteHeldOrder(held.id)}>
@@ -467,7 +498,9 @@ function ProductCard({
           src={product.image_path}
           alt={product.name}
           className="h-16 w-16 object-cover rounded-lg"
-          onError={(e) => { e.currentTarget.style.display = 'none' }}
+          onError={(e) => {
+            e.currentTarget.style.display = 'none'
+          }}
         />
       ) : (
         <div className="h-16 w-16 rounded-lg bg-primary/10 flex items-center justify-center text-2xl">
@@ -476,9 +509,7 @@ function ProductCard({
       )}
       <p className="text-xs font-medium leading-tight line-clamp-2 w-full">{product.name}</p>
       <p className="text-sm font-bold text-primary">{fmt(product.price)}</p>
-      {product.sku && (
-        <p className="text-xs text-muted-foreground">{product.sku}</p>
-      )}
+      {product.sku && <p className="text-xs text-muted-foreground">{product.sku}</p>}
     </button>
   )
 }
@@ -503,7 +534,9 @@ function CartItemRow({
           </p>
         )}
         {item.notes && (
-          <p className="text-xs text-muted-foreground italic truncate">"{item.notes}"</p>
+          <p className="text-xs text-muted-foreground italic truncate">
+            &ldquo;{item.notes}&rdquo;
+          </p>
         )}
         <p className="text-xs font-medium text-primary">{fmt(item.line_total)}</p>
       </div>

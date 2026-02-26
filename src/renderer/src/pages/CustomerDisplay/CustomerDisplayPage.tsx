@@ -86,8 +86,11 @@ export function CustomerDisplayPage(): JSX.Element {
         </div>
         {cart && (
           <div className="text-sm text-white/80">
-            {cart.orderType === 'dine_in' && cart.tableNumber ? `Table ${cart.tableNumber}` :
-              cart.orderType === 'takeaway' ? 'Takeaway' : 'Delivery'}
+            {cart.orderType === 'dine_in' && cart.tableNumber
+              ? `Table ${cart.tableNumber}`
+              : cart.orderType === 'takeaway'
+                ? 'Takeaway'
+                : 'Delivery'}
           </div>
         )}
       </div>
@@ -118,27 +121,46 @@ export function CustomerDisplayPage(): JSX.Element {
             {/* Items */}
             <div className="space-y-3 max-h-[50vh] overflow-auto pr-1">
               {cart.items.map((item, i) => (
-                <div key={i} className="flex items-center justify-between rounded-xl bg-white/10 px-5 py-3">
+                <div
+                  key={i}
+                  className="flex items-center justify-between rounded-xl bg-white/10 px-5 py-3"
+                >
                   <div className="flex-1">
-                    <p className="font-semibold text-lg">{item.quantity} × {item.product_name}</p>
+                    <p className="font-semibold text-lg">
+                      {item.quantity} × {item.product_name}
+                    </p>
                     {item.modifiers_price > 0 && (
-                      <p className="text-xs text-white/60">+{formatAmt(item.modifiers_price)} extras</p>
+                      <p className="text-xs text-white/60">
+                        +{formatAmt(item.modifiers_price)} extras
+                      </p>
                     )}
                   </div>
-                  <span className="text-lg font-bold text-primary">{formatAmt(item.line_total)}</span>
+                  <span className="text-lg font-bold text-primary">
+                    {formatAmt(item.line_total)}
+                  </span>
                 </div>
               ))}
             </div>
 
             {/* Totals */}
             <div className="rounded-2xl bg-white/10 px-6 py-5 space-y-2 text-base">
-              <div className="flex justify-between text-white/70"><span>Subtotal</span><span>{formatAmt(cart.subtotal)}</span></div>
+              <div className="flex justify-between text-white/70">
+                <span>Subtotal</span>
+                <span>{formatAmt(cart.subtotal)}</span>
+              </div>
               {cart.discountAmount > 0 && (
-                <div className="flex justify-between text-green-400"><span>Discount</span><span>−{formatAmt(cart.discountAmount)}</span></div>
+                <div className="flex justify-between text-green-400">
+                  <span>Discount</span>
+                  <span>−{formatAmt(cart.discountAmount)}</span>
+                </div>
               )}
-              <div className="flex justify-between text-white/70"><span>Tax</span><span>{formatAmt(cart.taxAmount)}</span></div>
+              <div className="flex justify-between text-white/70">
+                <span>Tax</span>
+                <span>{formatAmt(cart.taxAmount)}</span>
+              </div>
               <div className="flex justify-between text-3xl font-bold border-t border-white/20 pt-3 mt-2">
-                <span>Total</span><span className="text-primary">{formatAmt(cart.total)}</span>
+                <span>Total</span>
+                <span className="text-primary">{formatAmt(cart.total)}</span>
               </div>
             </div>
           </div>
@@ -178,7 +200,12 @@ export function CustomerDisplayPage(): JSX.Element {
 
       {/* Footer */}
       <div className="px-8 py-3 bg-black/40 text-center text-white/40 text-sm">
-        {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+        {new Date().toLocaleDateString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })}
       </div>
     </div>
   )

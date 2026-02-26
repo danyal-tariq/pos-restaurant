@@ -33,9 +33,7 @@ export function registerDbIpcHandlers(): void {
   )
   ipcMain.handle('products:search', (_e, query: string) => productsRepo.searchProducts(query))
   ipcMain.handle('products:create', (_e, data) => productsRepo.createProduct(data))
-  ipcMain.handle('products:update', (_e, id: number, data) =>
-    productsRepo.updateProduct(id, data)
-  )
+  ipcMain.handle('products:update', (_e, id: number, data) => productsRepo.updateProduct(id, data))
   ipcMain.handle('products:delete', (_e, id: number) => productsRepo.deleteProduct(id))
   ipcMain.handle('products:getModifierGroups', (_e, productId: number) =>
     productsRepo.getModifierGroupsForProduct(productId)
@@ -103,8 +101,10 @@ export function registerDbIpcHandlers(): void {
     inventoryRepo.updateInventoryItem(id, data)
   )
   ipcMain.handle('inventory:delete', (_e, id: number) => inventoryRepo.deleteInventoryItem(id))
-  ipcMain.handle('inventory:adjust', (_e, itemId: number, delta: number, reason: string, empId?: number) =>
-    inventoryRepo.adjustInventory(itemId, delta, reason, empId)
+  ipcMain.handle(
+    'inventory:adjust',
+    (_e, itemId: number, delta: number, reason: string, empId?: number) =>
+      inventoryRepo.adjustInventory(itemId, delta, reason, empId)
   )
   ipcMain.handle('inventory:getHistory', (_e, itemId: number) =>
     inventoryRepo.getAdjustmentHistory(itemId)
@@ -138,9 +138,7 @@ export function registerDbIpcHandlers(): void {
   ipcMain.handle('shifts:getOpen', (_e, employeeId: number) =>
     employeesRepo.getOpenShift(employeeId)
   )
-  ipcMain.handle('shifts:getHistory', (_e, limit?: number) =>
-    employeesRepo.getShiftsHistory(limit)
-  )
+  ipcMain.handle('shifts:getHistory', (_e, limit?: number) => employeesRepo.getShiftsHistory(limit))
 
   // ── Discounts ─────────────────────────────────────────────────────────
   // Normalize: DB uses `active` int + days_of_week CSV string
@@ -155,7 +153,10 @@ export function registerDbIpcHandlers(): void {
   }
   function denormalizeDiscount(data: Record<string, unknown>): Record<string, unknown> {
     const out = { ...data }
-    if ('is_active' in data) { out.active = data.is_active ? 1 : 0; delete out.is_active }
+    if ('is_active' in data) {
+      out.active = data.is_active ? 1 : 0
+      delete out.is_active
+    }
     if (Array.isArray(data.days_of_week)) out.days_of_week = data.days_of_week.join(',')
     else if (data.days_of_week === null || data.days_of_week === undefined) out.days_of_week = null
     if (out.max_uses === undefined) out.max_uses = 0
@@ -184,15 +185,11 @@ export function registerDbIpcHandlers(): void {
 
   // ── Reports ───────────────────────────────────────────────────────────
   ipcMain.handle('reports:dashboard', () => reportsRepo.getDashboardStats())
-  ipcMain.handle('reports:salesByHour', (_e, date: string) =>
-    reportsRepo.getSalesByHour(date)
-  )
+  ipcMain.handle('reports:salesByHour', (_e, date: string) => reportsRepo.getSalesByHour(date))
   ipcMain.handle('reports:salesByDay', (_e, start: string, end: string) =>
     reportsRepo.getSalesByDay(start, end)
   )
-  ipcMain.handle('reports:salesByMonth', (_e, year: number) =>
-    reportsRepo.getSalesByMonth(year)
-  )
+  ipcMain.handle('reports:salesByMonth', (_e, year: number) => reportsRepo.getSalesByMonth(year))
   ipcMain.handle('reports:products', (_e, start: string, end: string) =>
     reportsRepo.getProductSalesReport(start, end)
   )

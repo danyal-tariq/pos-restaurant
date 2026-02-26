@@ -25,22 +25,31 @@ function DiscountForm({ initial, onSave, onClose }: DiscountFormProps): JSX.Elem
   const [days, setDays] = useState<number[]>(initial?.days_of_week ?? [])
   const [isActive, setIsActive] = useState(initial?.is_active ?? true)
 
-  const toggleDay = (d: number): void => setDays((prev) => prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d])
+  const toggleDay = (d: number): void =>
+    setDays((prev) => (prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d]))
 
   return (
     <Modal open onClose={onClose} title={initial?.id ? 'Edit Discount' : 'New Discount'} size="lg">
       <div className="p-6 grid grid-cols-2 gap-4">
         <div className="col-span-2">
           <Label>Name *</Label>
-          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Happy Hour 20%" autoFocus />
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g. Happy Hour 20%"
+            autoFocus
+          />
         </div>
         <div>
           <Label>Type</Label>
           <div className="flex gap-2 mt-1">
             {(['percentage', 'fixed'] as const).map((t) => (
-              <button key={t} onClick={() => setType(t)}
+              <button
+                key={t}
+                onClick={() => setType(t)}
                 className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors
-                  ${type === t ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-accent'}`}>
+                  ${type === t ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-accent'}`}
+              >
                 {t === 'percentage' ? 'Percentage (%)' : 'Fixed Amount'}
               </button>
             ))}
@@ -48,19 +57,41 @@ function DiscountForm({ initial, onSave, onClose }: DiscountFormProps): JSX.Elem
         </div>
         <div>
           <Label>Value ({type === 'percentage' ? '%' : 'amount'}) *</Label>
-          <Input type="number" step="0.01" value={value} onChange={(e) => setValue(e.target.value)} placeholder={type === 'percentage' ? '10' : '5.00'} />
+          <Input
+            type="number"
+            step="0.01"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder={type === 'percentage' ? '10' : '5.00'}
+          />
         </div>
         <div>
           <Label>Coupon Code (optional)</Label>
-          <Input value={code} onChange={(e) => setCode(e.target.value)} placeholder="e.g. SAVE10" className="uppercase" />
+          <Input
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="e.g. SAVE10"
+            className="uppercase"
+          />
         </div>
         <div>
           <Label>Minimum Order Amount</Label>
-          <Input type="number" step="0.01" value={minOrder} onChange={(e) => setMinOrder(e.target.value)} placeholder="0.00" />
+          <Input
+            type="number"
+            step="0.01"
+            value={minOrder}
+            onChange={(e) => setMinOrder(e.target.value)}
+            placeholder="0.00"
+          />
         </div>
         <div>
           <Label>Max Uses (0 = unlimited)</Label>
-          <Input type="number" value={maxUses} onChange={(e) => setMaxUses(e.target.value)} placeholder="0" />
+          <Input
+            type="number"
+            value={maxUses}
+            onChange={(e) => setMaxUses(e.target.value)}
+            placeholder="0"
+          />
         </div>
         <div>
           <Label>Start Time (happy hour)</Label>
@@ -74,29 +105,51 @@ function DiscountForm({ initial, onSave, onClose }: DiscountFormProps): JSX.Elem
           <Label>Active Days (leave empty for every day)</Label>
           <div className="flex gap-2 mt-1">
             {DAYS.map((d, i) => (
-              <button key={d} onClick={() => toggleDay(i)}
+              <button
+                key={d}
+                onClick={() => toggleDay(i)}
                 className={`flex-1 py-1.5 rounded-lg border text-xs font-medium transition-colors
-                  ${days.includes(i) ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-accent'}`}>
+                  ${days.includes(i) ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-accent'}`}
+              >
                 {d}
               </button>
             ))}
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <input type="checkbox" id="disc_active" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="h-4 w-4" />
+          <input
+            type="checkbox"
+            id="disc_active"
+            checked={isActive}
+            onChange={(e) => setIsActive(e.target.checked)}
+            className="h-4 w-4"
+          />
           <Label htmlFor="disc_active">Active</Label>
         </div>
         <div className="col-span-2 flex justify-end gap-2 pt-2">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={() => name && value && onSave({
-            name, type, value: parseFloat(value),
-            code: code.trim().toUpperCase() || null,
-            min_order_amount: minOrder ? parseFloat(minOrder) : 0,
-            max_uses: maxUses ? parseInt(maxUses) : 0,
-            start_time: startTime || null, end_time: endTime || null,
-            days_of_week: days.length > 0 ? days : null,
-            is_active: isActive
-          })}>Save Discount</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            onClick={() =>
+              name &&
+              value &&
+              onSave({
+                name,
+                type,
+                value: parseFloat(value),
+                code: code.trim().toUpperCase() || null,
+                min_order_amount: minOrder ? parseFloat(minOrder) : 0,
+                max_uses: maxUses ? parseInt(maxUses) : 0,
+                start_time: startTime || null,
+                end_time: endTime || null,
+                days_of_week: days.length > 0 ? days : null,
+                is_active: isActive
+              })
+            }
+          >
+            Save Discount
+          </Button>
         </div>
       </div>
     </Modal>
@@ -111,12 +164,14 @@ export function DiscountsPage(): JSX.Element {
   const [deleteTarget, setDeleteTarget] = useState<Discount | null>(null)
 
   const load = useCallback(async () => {
-    const d = await window.api.discounts.getAll() as Discount[]
+    const d = (await window.api.discounts.getAll()) as Discount[]
     setDiscounts(d)
     setLoading(false)
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    load()
+  }, [load])
 
   const handleSave = async (data: Partial<Discount>): Promise<void> => {
     if (form.initial?.id) {
@@ -153,15 +208,27 @@ export function DiscountsPage(): JSX.Element {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center flex-1"><Spinner className="h-8 w-8" /></div>
+        <div className="flex items-center justify-center flex-1">
+          <Spinner className="h-8 w-8" />
+        </div>
       ) : discounts.length === 0 ? (
         <EmptyState
           title="No discounts"
           description="Create promotions, coupon codes, and happy hour deals"
-          action={<button className="rounded-lg bg-primary px-3 py-1.5 text-sm text-primary-foreground" onClick={() => setForm({ open: true })}>Create Discount</button>}
+          action={
+            <button
+              className="rounded-lg bg-primary px-3 py-1.5 text-sm text-primary-foreground"
+              onClick={() => setForm({ open: true })}
+            >
+              Create Discount
+            </button>
+          }
         />
       ) : (
-        <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>
+        <div
+          className="grid gap-4"
+          style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}
+        >
           {discounts.map((disc) => (
             <Card key={disc.id} className={`p-5 ${!disc.is_active ? 'opacity-60' : ''}`}>
               <div className="flex items-start justify-between">
@@ -175,35 +242,52 @@ export function DiscountsPage(): JSX.Element {
                       {disc.type === 'percentage' ? `${disc.value}% off` : `${fmt(disc.value)} off`}
                     </Badge>
                     {disc.code && (
-                      <Badge variant="outline" className="text-xs font-mono">{disc.code}</Badge>
+                      <Badge variant="outline" className="text-xs font-mono">
+                        {disc.code}
+                      </Badge>
                     )}
                     {disc.start_time && disc.end_time && (
                       <Badge variant="info" className="text-xs">
-                        <Clock className="h-2.5 w-2.5 mr-1" />{disc.start_time}–{disc.end_time}
+                        <Clock className="h-2.5 w-2.5 mr-1" />
+                        {disc.start_time}–{disc.end_time}
                       </Badge>
                     )}
                     {disc.min_order_amount > 0 && (
-                      <Badge variant="outline" className="text-xs">Min: {fmt(disc.min_order_amount)}</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Min: {fmt(disc.min_order_amount)}
+                      </Badge>
                     )}
                     {disc.max_uses > 0 && (
-                      <Badge variant="outline" className="text-xs">Max {disc.max_uses} uses</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Max {disc.max_uses} uses
+                      </Badge>
                     )}
                     {disc.days_of_week && disc.days_of_week.length > 0 && (
-                      <Badge variant="outline" className="text-xs">{disc.days_of_week.map((d) => DAYS[d]).join(', ')}</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {disc.days_of_week.map((d) => DAYS[d]).join(', ')}
+                      </Badge>
                     )}
                   </div>
                 </div>
                 <div className="flex gap-1 ml-2">
-                  <button onClick={() => setForm({ open: true, initial: disc })} className="p-1.5 rounded hover:bg-accent">
+                  <button
+                    onClick={() => setForm({ open: true, initial: disc })}
+                    className="p-1.5 rounded hover:bg-accent"
+                  >
                     <Pencil className="h-4 w-4" />
                   </button>
-                  <button onClick={() => setDeleteTarget(disc)} className="p-1.5 rounded hover:bg-destructive/10 text-destructive">
+                  <button
+                    onClick={() => setDeleteTarget(disc)}
+                    className="p-1.5 rounded hover:bg-destructive/10 text-destructive"
+                  >
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
               </div>
               <div className="flex items-center justify-between mt-3 pt-3 border-t">
-                <Badge variant={disc.is_active ? 'success' : 'outline'}>{disc.is_active ? 'Active' : 'Inactive'}</Badge>
+                <Badge variant={disc.is_active ? 'success' : 'outline'}>
+                  {disc.is_active ? 'Active' : 'Inactive'}
+                </Badge>
                 <button
                   onClick={() => handleToggleActive(disc)}
                   className="text-xs text-muted-foreground hover:text-foreground"
@@ -216,7 +300,13 @@ export function DiscountsPage(): JSX.Element {
         </div>
       )}
 
-      {form.open && <DiscountForm initial={form.initial} onSave={handleSave} onClose={() => setForm({ open: false })} />}
+      {form.open && (
+        <DiscountForm
+          initial={form.initial}
+          onSave={handleSave}
+          onClose={() => setForm({ open: false })}
+        />
+      )}
       {deleteTarget && (
         <ConfirmDialog
           open

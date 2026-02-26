@@ -62,9 +62,9 @@ export function getDashboardStats(): DashboardStats {
   ).cnt
 
   const lowStockCount = (
-    db
-      .prepare('SELECT COUNT(*) as cnt FROM inventory_items WHERE quantity <= threshold')
-      .get() as { cnt: number }
+    db.prepare('SELECT COUNT(*) as cnt FROM inventory_items WHERE quantity <= threshold').get() as {
+      cnt: number
+    }
   ).cnt
 
   return {

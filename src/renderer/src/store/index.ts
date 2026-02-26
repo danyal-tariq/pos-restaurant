@@ -52,7 +52,9 @@ export const useCartStore = create<CartState>((set, get) => ({
       // Check if same product + same modifiers exists
       const modKey = JSON.stringify(item.modifiers.map((m) => m.modifier_id).sort())
       const existing = state.items.find(
-        (i) => i.product_id === item.product_id && JSON.stringify(i.modifiers.map((m) => m.modifier_id).sort()) === modKey
+        (i) =>
+          i.product_id === item.product_id &&
+          JSON.stringify(i.modifiers.map((m) => m.modifier_id).sort()) === modKey
       )
       if (existing) {
         return {

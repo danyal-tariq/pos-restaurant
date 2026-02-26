@@ -31,9 +31,9 @@ function runMigrations(db: Database.Database): void {
     );
   `)
 
-  const row = db.prepare('SELECT version FROM schema_version ORDER BY version DESC LIMIT 1').get() as
-    | { version: number }
-    | undefined
+  const row = db
+    .prepare('SELECT version FROM schema_version ORDER BY version DESC LIMIT 1')
+    .get() as { version: number } | undefined
   const currentVersion = row?.version ?? 0
 
   if (currentVersion < 1) {
@@ -45,9 +45,7 @@ function runMigrations(db: Database.Database): void {
 
 function seedDefaultData(db: Database.Database): void {
   // Default settings
-  const settingInsert = db.prepare(
-    'INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)'
-  )
+  const settingInsert = db.prepare('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)')
   const settings = [
     ['shop_name', 'My Fast Food Shop'],
     ['shop_address', '123 Main Street'],
@@ -93,9 +91,12 @@ function seedDefaultData(db: Database.Database): void {
   insertCats()
 
   // Default admin employee
-  db.prepare(
-    `INSERT OR IGNORE INTO employees (name, pin, role, active) VALUES (?, ?, ?, ?)`
-  ).run('Admin', '1234', 'admin', 1)
+  db.prepare(`INSERT OR IGNORE INTO employees (name, pin, role, active) VALUES (?, ?, ?, ?)`).run(
+    'Admin',
+    '1234',
+    'admin',
+    1
+  )
 }
 
 const MIGRATION_001 = `

@@ -73,9 +73,7 @@ function buildReceiptText(data: ReceiptData): string {
     ]),
     thinDivider,
     pad('Subtotal:', `$${data.subtotal.toFixed(2)}`),
-    ...(data.discountAmount > 0
-      ? [pad('Discount:', `-$${data.discountAmount.toFixed(2)}`)]
-      : []),
+    ...(data.discountAmount > 0 ? [pad('Discount:', `-$${data.discountAmount.toFixed(2)}`)] : []),
     pad('Tax:', `$${data.taxAmount.toFixed(2)}`),
     divider,
     pad('TOTAL:', `$${data.total.toFixed(2)}`),
@@ -113,7 +111,10 @@ function buildKitchenText(data: KitchenTicketData): string {
   return lines.join('\n')
 }
 
-async function printToPrinter(text: string, printerType: string): Promise<{ success: boolean; error?: string }> {
+async function printToPrinter(
+  text: string,
+  printerType: string
+): Promise<{ success: boolean; error?: string }> {
   if (printerType === 'none') {
     console.log('=== RECEIPT/TICKET (no printer configured) ===\n', text)
     return { success: true }
@@ -130,7 +131,10 @@ async function printToPrinter(text: string, printerType: string): Promise<{ succ
         const client = net.createConnection({ host: ip, port }, () => {
           const buf = Buffer.from(text + '\x1B\x64\x05\x1D\x56\x00', 'ascii')
           client.write(buf, (err) => {
-            if (err) { reject(err); return }
+            if (err) {
+              reject(err)
+              return
+            }
             client.end()
             resolve()
           })

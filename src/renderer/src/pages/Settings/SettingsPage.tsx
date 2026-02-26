@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Button, Input, Label, Spinner, Card } from '../../components/ui/index'
-import { showToast } from '../../components/ui/Modal'
+import { showToast } from '../../components/ui/toast'
 import { useSettingsStore } from '../../store'
-import { Save, Printer, Store, CreditCard, Globe, Moon, Sun, Monitor } from 'lucide-react'
+import type { AppSettings } from '../../types'
+import { Save, Printer, Store, CreditCard, Monitor } from 'lucide-react'
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'AED', 'SAR', 'EGP', 'INR', 'PKR', 'CAD', 'AUD']
-const TIMEZONES = Intl.supportedValuesOf ? Intl.supportedValuesOf('timeZone') : ['UTC', 'America/New_York', 'Europe/London', 'Asia/Dubai']
 
 interface FieldProps {
   label: string
@@ -23,7 +23,7 @@ function Field({ label, children, hint }: FieldProps): JSX.Element {
 }
 
 export function SettingsPage(): JSX.Element {
-  const { settings, setSettings } = useSettingsStore()
+  const { setSettings } = useSettingsStore()
   const [local, setLocal] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState(false)
   const [printerTest, setPrinterTest] = useState<'idle' | 'testing' | 'ok' | 'fail'>('idle')
@@ -39,7 +39,7 @@ export function SettingsPage(): JSX.Element {
   const handleSave = async (): Promise<void> => {
     setSaving(true)
     await window.api.settings.set(local)
-    setSettings(local as any)
+    setSettings(local as unknown as AppSettings)
     showToast('Settings saved', 'success')
     setSaving(false)
   }
@@ -63,19 +63,35 @@ export function SettingsPage(): JSX.Element {
       fields: (
         <div className="grid grid-cols-2 gap-4">
           <Field label="Shop Name">
-            <Input value={local['shop_name'] ?? ''} onChange={(e) => set('shop_name', e.target.value)} placeholder="My Restaurant" />
+            <Input
+              value={local['shop_name'] ?? ''}
+              onChange={(e) => set('shop_name', e.target.value)}
+              placeholder="My Restaurant"
+            />
           </Field>
           <Field label="Phone Number">
-            <Input value={local['shop_phone'] ?? ''} onChange={(e) => set('shop_phone', e.target.value)} placeholder="+1 234 567 890" />
+            <Input
+              value={local['shop_phone'] ?? ''}
+              onChange={(e) => set('shop_phone', e.target.value)}
+              placeholder="+1 234 567 890"
+            />
           </Field>
           <div className="col-span-2">
             <Field label="Address">
-              <Input value={local['shop_address'] ?? ''} onChange={(e) => set('shop_address', e.target.value)} placeholder="123 Main Street, City" />
+              <Input
+                value={local['shop_address'] ?? ''}
+                onChange={(e) => set('shop_address', e.target.value)}
+                placeholder="123 Main Street, City"
+              />
             </Field>
           </div>
           <div className="col-span-2">
             <Field label="Receipt Footer Message">
-              <Input value={local['receipt_footer'] ?? ''} onChange={(e) => set('receipt_footer', e.target.value)} placeholder="Thank you! We hope to see you again." />
+              <Input
+                value={local['receipt_footer'] ?? ''}
+                onChange={(e) => set('receipt_footer', e.target.value)}
+                placeholder="Thank you! We hope to see you again."
+              />
             </Field>
           </div>
         </div>
@@ -88,26 +104,51 @@ export function SettingsPage(): JSX.Element {
       fields: (
         <div className="grid grid-cols-2 gap-4">
           <Field label="Tax Rate (%)" hint="Enter 0 to disable tax">
-            <Input type="number" step="0.01" min="0" max="100" value={local['tax_rate'] ?? '0'} onChange={(e) => set('tax_rate', e.target.value)} />
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              max="100"
+              value={local['tax_rate'] ?? '0'}
+              onChange={(e) => set('tax_rate', e.target.value)}
+            />
           </Field>
           <Field label="Tax Inclusive" hint="Is tax already included in prices?">
-            <select className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
-              value={local['tax_inclusive'] ?? 'false'} onChange={(e) => set('tax_inclusive', e.target.value)}>
+            <select
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+              value={local['tax_inclusive'] ?? 'false'}
+              onChange={(e) => set('tax_inclusive', e.target.value)}
+            >
               <option value="false">Exclusive (added on top)</option>
               <option value="true">Inclusive (included in price)</option>
             </select>
           </Field>
           <Field label="Currency">
-            <select className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
-              value={local['currency'] ?? 'USD'} onChange={(e) => set('currency', e.target.value)}>
-              {CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            <select
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+              value={local['currency'] ?? 'USD'}
+              onChange={(e) => set('currency', e.target.value)}
+            >
+              {CURRENCIES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
             </select>
           </Field>
           <Field label="Currency Symbol">
-            <Input value={local['currency_symbol'] ?? '$'} onChange={(e) => set('currency_symbol', e.target.value)} placeholder="$" />
+            <Input
+              value={local['currency_symbol'] ?? '$'}
+              onChange={(e) => set('currency_symbol', e.target.value)}
+              placeholder="$"
+            />
           </Field>
           <Field label="Order Number Prefix">
-            <Input value={local['order_prefix'] ?? 'ORD'} onChange={(e) => set('order_prefix', e.target.value)} placeholder="ORD" />
+            <Input
+              value={local['order_prefix'] ?? 'ORD'}
+              onChange={(e) => set('order_prefix', e.target.value)}
+              placeholder="ORD"
+            />
           </Field>
         </div>
       )
@@ -119,17 +160,28 @@ export function SettingsPage(): JSX.Element {
       fields: (
         <div className="grid grid-cols-2 gap-4">
           <Field label="Printer Type">
-            <select className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
-              value={local['printer_type'] ?? 'network'} onChange={(e) => set('printer_type', e.target.value)}>
+            <select
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+              value={local['printer_type'] ?? 'network'}
+              onChange={(e) => set('printer_type', e.target.value)}
+            >
               <option value="network">Network (TCP/IP)</option>
               <option value="none">None (no printing)</option>
             </select>
           </Field>
           <Field label="Printer IP Address" hint="e.g. 192.168.1.100">
-            <Input value={local['printer_ip'] ?? ''} onChange={(e) => set('printer_ip', e.target.value)} placeholder="192.168.1.100" />
+            <Input
+              value={local['printer_ip'] ?? ''}
+              onChange={(e) => set('printer_ip', e.target.value)}
+              placeholder="192.168.1.100"
+            />
           </Field>
           <Field label="Printer Port" hint="Usually 9100">
-            <Input type="number" value={local['printer_port'] ?? '9100'} onChange={(e) => set('printer_port', e.target.value)} />
+            <Input
+              type="number"
+              value={local['printer_port'] ?? '9100'}
+              onChange={(e) => set('printer_port', e.target.value)}
+            />
           </Field>
           <div className="flex items-end">
             <Button
@@ -139,14 +191,21 @@ export function SettingsPage(): JSX.Element {
               className="w-full"
             >
               <Printer className="h-4 w-4 mr-2" />
-              {printerTest === 'idle' ? 'Test Print' :
-                printerTest === 'testing' ? 'Testing...' :
-                printerTest === 'ok' ? '✓ Success!' : '✗ Failed'}
+              {printerTest === 'idle'
+                ? 'Test Print'
+                : printerTest === 'testing'
+                  ? 'Testing...'
+                  : printerTest === 'ok'
+                    ? '✓ Success!'
+                    : '✗ Failed'}
             </Button>
           </div>
           <Field label="Paper Width" hint="columns">
-            <select className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
-              value={local['paper_width'] ?? '80'} onChange={(e) => set('paper_width', e.target.value)}>
+            <select
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+              value={local['paper_width'] ?? '80'}
+              onChange={(e) => set('paper_width', e.target.value)}
+            >
               <option value="58">58mm (~32 cols)</option>
               <option value="80">80mm (~42 cols)</option>
             </select>
@@ -161,16 +220,22 @@ export function SettingsPage(): JSX.Element {
       fields: (
         <div className="grid grid-cols-2 gap-4">
           <Field label="Theme">
-            <select className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
-              value={local['theme'] ?? 'system'} onChange={(e) => set('theme', e.target.value)}>
+            <select
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+              value={local['theme'] ?? 'system'}
+              onChange={(e) => set('theme', e.target.value)}
+            >
               <option value="light">Light</option>
               <option value="dark">Dark</option>
               <option value="system">System</option>
             </select>
           </Field>
           <Field label="Language">
-            <select className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
-              value={local['language'] ?? 'en'} onChange={(e) => set('language', e.target.value)}>
+            <select
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+              value={local['language'] ?? 'en'}
+              onChange={(e) => set('language', e.target.value)}
+            >
               <option value="en">English</option>
               <option value="ar">Arabic</option>
             </select>
